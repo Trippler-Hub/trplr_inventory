@@ -3,6 +3,7 @@ local Translations = {
         ['snowballs'] = 'Collecting snowballs..',
     },
     notify = {
+        ['notnenoughweight'] = 'You don"t have enough weight in your inventory',
         ['failed'] = 'Failed',
         ['canceled'] = 'Canceled',
         ['vlocked'] = 'Vehicle Locked',

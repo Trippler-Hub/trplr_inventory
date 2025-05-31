@@ -108,6 +108,7 @@ RegisterCommand('hotbar', function(source)
         QBPlayer.PlayerData.items[3],
         QBPlayer.PlayerData.items[4],
         QBPlayer.PlayerData.items[5],
+        QBPlayer.PlayerData.items[6],
     }
     TriggerClientEvent('qb-inventory:client:hotbar', source, hotbarItems)
 end, false)

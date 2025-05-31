@@ -304,7 +304,7 @@ RegisterCommand('toggleHotbar', function()
     ExecuteCommand('hotbar')
 end, false)
 
-for i = 1, 5 do
+for i = 1, 6 do
     RegisterCommand('slot_' .. i, function()
         local itemData = PlayerData.items[i]
         if not itemData then return end
@@ -320,3 +320,7 @@ end
 
 RegisterKeyMapping('openInv', Lang:t('inf_mapping.opn_inv'), 'keyboard', Config.Keybinds.Open)
 RegisterKeyMapping('toggleHotbar', Lang:t('inf_mapping.tog_slots'), 'keyboard', Config.Keybinds.Hotbar)
+
+RegisterNetEvent('inventory:notenoughweight', function()
+    QBCore.Functions.Notify(Lang:t('notify.notnenoughweight'), 'error')
+end)

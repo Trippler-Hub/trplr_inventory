@@ -2,7 +2,7 @@ Config = {
     UseTarget = GetConvar('UseTarget', 'false') == 'true',
 
     MaxWeight = 120000,
-    MaxSlots = 40,
+    MaxSlots = 42,
 
     StashSize = {
         maxweight = 2000000,

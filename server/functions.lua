@@ -84,8 +84,7 @@ function LoadInventory(source, citizenid)
     end
 
     if #missingItems > 0 then
-        print(('The following items were removed for player %s as they no longer exist: %s'):format(source and GetPlayerName(source) or citizenid, table.concat(missingItems, ', ')))
-    end
+        print(('The following items were removed for player %s as they no longer exist: %s'):format(source and GetPlayerName(source) or citizenid, table.concat(missingItems, ', ')))    end
 
     return loadedInventory
 end
@@ -132,8 +131,6 @@ exports('SaveInventory', SaveInventory)
 function SetInventory(identifier, items, reason)
     local player = QBCore.Functions.GetPlayer(identifier)
 
-    print('Setting inventory for ' .. identifier)
-
     if not player and not Inventories[identifier] and not Drops[identifier] then
         print('SetInventory: Inventory not found')
         return
@@ -164,6 +161,7 @@ function SetInventory(identifier, items, reason)
         '**Reason:** ' .. setReason .. '\n' ..
         '**Resource:** ' .. resourceName
     )
+
 end
 
 exports('SetInventory', SetInventory)
@@ -173,20 +171,13 @@ exports('SetInventory', SetInventory)
 --- @param itemName string The name of the item.
 --- @param key string The key to set the value for.
 --- @param val any The value to set for the key.
---- @param slot number (optional) The slot number of the item. If not provided, it will search by name.
 --- @return boolean|nil - Returns true if the value was set successfully, false otherwise.
-function SetItemData(source, itemName, key, val, slot)
+function SetItemData(source, itemName, key, val)
     if not itemName or not key then return false end
     local Player = QBCore.Functions.GetPlayer(source)
     if not Player then return end
-    local item
-    if slot then
-        item = Player.PlayerData.items[tonumber(slot)]
-        if not item or item.name:lower() ~= itemName:lower() then return false end
-    else
-        item = GetItemByName(source, itemName)
-        if not item then return false end
-    end
+    local item = GetItemByName(source, itemName)
+    if not item then return false end
     item[key] = val
     Player.PlayerData.items[item.slot] = item
     Player.Functions.SetPlayerData('items', Player.PlayerData.items)
@@ -197,7 +188,7 @@ exports('SetItemData', SetItemData)
 
 function UseItem(itemName, ...)
     local itemData = QBCore.Functions.CanUseItem(itemName)
-    if type(itemData) == 'table' and itemData.func then
+    if type(itemData) == "table" and itemData.func then
         itemData.func(...)
     end
 end
@@ -255,7 +246,7 @@ function GetTotalWeight(items)
     local weight = 0
     for _, item in pairs(items) do
         local amount = item.amount
-        if type(amount) ~= 'number' then
+        if type(amount) ~= "number" then
             amount = 1
         end
 
@@ -361,6 +352,7 @@ exports('GetItemCount', GetItemCount)
 --- @return boolean - Returns true if the item can be added, false otherwise.
 --- @return string|nil - Returns a string indicating the reason why the item cannot be added (e.g., 'weight' or 'slots'), or nil if it can be added.
 function CanAddItem(identifier, item, amount)
+
     local Player = QBCore.Functions.GetPlayer(identifier)
 
     local itemData = QBCore.Shared.Items[item:lower()]
@@ -509,9 +501,10 @@ function OpenInventoryById(source, targetId)
     if Player(targetId).state.inv_busy then CloseInventory(targetId) end
     local playerItems = QBPlayer.PlayerData.items
     local targetItems = TargetPlayer.PlayerData.items
+    local Lenix = QBCore.Functions.GetPlayer(targetId)
     local formattedInventory = {
         name = 'otherplayer-' .. targetId,
-        label = GetPlayerName(targetId),
+        label = Lenix.PlayerData.charinfo.firstname,
         maxweight = Config.MaxWeight,
         slots = Config.MaxSlots,
         inventory = targetItems
@@ -707,7 +700,7 @@ function AddItem(identifier, item, amount, slot, info, reason)
 
     local totalWeight = GetTotalWeight(inventory)
     if totalWeight + (itemInfo.weight * amount) > inventoryWeight then
-        print('AddItem: Not enough weight available')
+        TriggerClientEvent('inventory:notenoughweight')
         return false
     end
 

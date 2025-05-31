@@ -69,7 +69,7 @@ VehicleStorage = {
         gloveboxSlots = 5,
         gloveboxWeight = 10000,
         trunkSlots = 35,
-        trunkWeight = 120000
+        trunkWeight = 620000
     },
     [13] = { -- Cycles
         gloveboxSlots = 5,
@@ -79,7 +79,7 @@ VehicleStorage = {
     },
     [14] = { -- Boats
         gloveboxSlots = 5,
-        gloveboxWeight = 10000,
+        gloveboxWeight = 200000,
         trunkSlots = 50,
         trunkWeight = 120000
     },
@@ -134,6 +134,9 @@ VehicleStorage = {
 }
 
 BackEngineVehicles = {
+    [`gtr96`] = true,
+    [`gt17`] = true,
+    [`650s`] = true,
     [`ninef`] = true,
     [`adder`] = true,
     [`vagner`] = true,

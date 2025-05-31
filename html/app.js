@@ -65,6 +65,8 @@ const InventoryContainer = Vue.createApp({
                 // Player Inventory
                 playerInventory: {},
                 inventoryLabel: "Inventory",
+                serveLabel: "Revival",
+                serverSecondLabel: "States",
                 totalWeight: 0,
                 // Other inventory
                 otherInventory: {},
@@ -240,8 +242,8 @@ const InventoryContainer = Vue.createApp({
         moveItemBetweenInventories(item, sourceInventoryType) {
             const sourceInventory = sourceInventoryType === "player" ? this.playerInventory : this.otherInventory;
             const targetInventory = sourceInventoryType === "player" ? this.otherInventory : this.playerInventory;
-            const targetWeight = sourceInventoryType === "player" ? this.otherInventoryWeight : this.playerWeight;
-            const maxTargetWeight = sourceInventoryType === "player" ? this.otherInventoryMaxWeight : this.maxWeight;
+            const targetWeight  = sourceInventoryType === "player" ? this.otherInventoryWeight : this.playerWeight ; 
+            const maxTargetWeight  = sourceInventoryType === "player" ? this.otherInventoryMaxWeight : this.maxWeight ; 
             const amountToTransfer = this.transferAmount !== null ? this.transferAmount : 1;
             let targetSlot = null;
 
@@ -347,31 +349,24 @@ const InventoryContainer = Vue.createApp({
             if (!this.currentlyDraggingItem) {
                 return;
             }
-
-            const elementsUnderCursor = document.elementsFromPoint(event.clientX, event.clientY);
-
-            const playerSlotElement = elementsUnderCursor.find((el) => el.classList.contains("item-slot") && el.closest(".player-inventory-section"));
-
-            const otherSlotElement = elementsUnderCursor.find((el) => el.classList.contains("item-slot") && el.closest(".other-inventory-section"));
-
-            if (playerSlotElement) {
-                const targetSlot = Number(playerSlotElement.dataset.slot);
+            const targetPlayerItemSlotElement = event.target.closest(".player-inventory .item-slot");
+            if (targetPlayerItemSlotElement) {
+                const targetSlot = Number(targetPlayerItemSlotElement.dataset.slot);
                 if (targetSlot && !(targetSlot === this.currentlyDraggingSlot && this.dragStartInventoryType === "player")) {
                     this.handleDropOnPlayerSlot(targetSlot);
                 }
-            } else if (otherSlotElement) {
-                const targetSlot = Number(otherSlotElement.dataset.slot);
+            }
+            const targetOtherItemSlotElement = event.target.closest(".other-inventory .item-slot");
+            if (targetOtherItemSlotElement) {
+                const targetSlot = Number(targetOtherItemSlotElement.dataset.slot);
                 if (targetSlot && !(targetSlot === this.currentlyDraggingSlot && this.dragStartInventoryType === "other")) {
                     this.handleDropOnOtherSlot(targetSlot);
                 }
-            } else if (this.isOtherInventoryEmpty && this.dragStartInventoryType === "player") {
-                const isOverInventoryGrid = elementsUnderCursor.some((el) => el.classList.contains("inventory-grid") || el.classList.contains("item-grid"));
-
-                if (!isOverInventoryGrid) {
-                    this.handleDropOnInventoryContainer();
-                }
             }
-
+            const targetInventoryContainer = event.target.closest(".inventory-container");
+            if (targetInventoryContainer && !targetPlayerItemSlotElement && !targetOtherItemSlotElement) {
+                this.handleDropOnInventoryContainer();
+            }
             this.clearDragData();
         },
         handleDropOnPlayerSlot(targetSlot) {
@@ -465,7 +460,8 @@ const InventoryContainer = Vue.createApp({
                         if (totalWeightAfterTransfer > this.otherInventoryMaxWeight) {
                             throw new Error("Insufficient weight capacity in target inventory");
                         }
-                    } else if (targetInventoryType == "player") {
+                    }
+                    else if (targetInventoryType == "player") {
                         const totalWeightAfterTransfer = this.playerWeight + sourceItem.weight * amountToTransfer;
                         if (totalWeightAfterTransfer > this.maxWeight) {
                             throw new Error("Insufficient weight capacity in player inventory");
@@ -716,7 +712,7 @@ const InventoryContainer = Vue.createApp({
                             info: selectedItem.info,
                         });
                         if (!response.data) return;
-
+                        
                         this.playerInventory[selectedItem.slot].amount -= amountToGive;
                         if (this.playerInventory[selectedItem.slot].amount === 0) {
                             delete this.playerInventory[selectedItem.slot];
@@ -766,7 +762,7 @@ const InventoryContainer = Vue.createApp({
         showItemNotification(itemData) {
             this.notificationText = itemData.item.label;
             this.notificationImage = "images/" + itemData.item.image;
-            this.notificationType = itemData.type === "add" ? "Received" : itemData.type === "use" ? "Used" : "Removed";
+            this.notificationType = itemData.type === "add" ? "Received" : itemData.type === "use" ? "" : "Removed";
             this.notificationAmount = itemData.amount || 1;
             this.showNotification = true;
             setTimeout(() => {
@@ -870,9 +866,10 @@ const InventoryContainer = Vue.createApp({
             }
             let content = `<div class="custom-tooltip"><div class="tooltip-header">${item.label}</div><hr class="tooltip-divider">`;
             const description = item.info && item.info.description ? item.info.description.replace(/\n/g, "<br>") : item.description ? item.description.replace(/\n/g, "<br>") : "No description available.";
-            if (item.info && Object.keys(item.info).length > 0 && item.info.display !== false) {
+
+            if (item.info && Object.keys(item.info).length > 0) {
                 for (const [key, value] of Object.entries(item.info)) {
-                    if (key !== "description" && key !== "display") {
+                    if (key !== "description") {
                         let valueStr = value;
                         if (key === "attachments") {
                             valueStr = Object.keys(value).length > 0 ? "true" : "false";
@@ -881,8 +878,10 @@ const InventoryContainer = Vue.createApp({
                     }
                 }
             }
+
             content += `<div class="tooltip-description">${description}</div>`;
             content += `<div class="tooltip-weight"><i class="fas fa-weight-hanging"></i> ${item.weight !== undefined && item.weight !== null ? (item.weight / 1000).toFixed(1) : "N/A"}kg</div>`;
+
             content += `</div>`;
             return content;
         },
