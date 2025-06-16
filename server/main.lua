@@ -1,3 +1,6 @@
+if GetCurrentResourceName() ~= "trplr_inventory" then
+    return print("^6Changing the resource's name wont't let the resource start, ^1" .. GetCurrentResourceName() .. "^0 > ^2 trplr_inventory ^7")
+end
 QBCore = exports['qb-core']:GetCoreObject()
 Inventories = {}
 Drops = {}
