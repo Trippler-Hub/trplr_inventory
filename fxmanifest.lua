@@ -35,3 +35,4 @@ files {
 }
 
 dependency 'qb-weapons'
+provide 'qb-inventory'
